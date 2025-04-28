@@ -1,0 +1,10 @@
+<div class="col-4">
+    <div class="card" style="width: 18rem;">
+        {% if ext.photo %}
+        <img src="{{ post.photo.url }}"  alt="">
+        {% else %}
+        <img class="card-img-top" src="https://www.raumplus.ru/upload/iblock/99e/Skoro-zdes-budet-foto.jpg" width="200" alt="Скоро здесб будет фото">
+        {% endif %}
+        <div class="card-body"><h5 class="card-title">{{ ext.title }}</h5><a href="{{ ext.get_absolute_url }}" class="btn btn-primary">Подробнее</a></div>
+    </div>
+</div>
