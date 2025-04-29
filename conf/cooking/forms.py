@@ -71,4 +71,4 @@ class RegistrationForm(UserCreationForm):
         attrs={"class": "form-control", "placeholder": "Подтвердите пароль"}
     )
 
-    password2 = forms.EmailField(widget=widget_password2)
+    password2 = forms.CharField(widget=widget_password2)

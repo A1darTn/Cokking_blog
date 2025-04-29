@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.db.models import F
 from django.contrib.auth import login, logout
+from django.contrib import messages
+from django.views.generic import ListView, DeleteView, DetailView, CreateView, UpdateView
 
 from .models import Post
 from .forms import PostAddForm, LoginForm, RegistrationForm
@@ -8,15 +10,22 @@ from .forms import PostAddForm, LoginForm, RegistrationForm
 # Create your views here.
 
 
-def index(request):
-    """Главная страница"""
-    posts = Post.objects.all()
-    context = {
-        "title": "Главная страница",
-        "posts": posts,
-    }
+# def index(request):
+#     """Главная страница"""
+#     posts = Post.objects.all()
+#     context = {
+#         "title": "Главная страница",
+#         "posts": posts,
+#     }
 
-    return render(request, "cooking/index.html", context)
+#     return render(request, "cooking/index.html", context)
+
+class Index(ListView):
+    """Главная страница"""
+    model = Post
+    context_object_name = 'posts'
+    template_name = 'cooking/index.html'
+    extra_context = {'title': 'Главная страница'}
 
 
 def category_list(request, pk):
@@ -32,7 +41,7 @@ def category_list(request, pk):
 def post_detail(request, pk):
     article = Post.objects.get(pk=pk)
     Post.objects.filter(pk=pk).update(watched=F("watched") + 1)
-    ext_post = Post.objects.all().order_by("-watched")[:5]
+    ext_post = Post.objects.all().exclude(pk=pk).order_by("-watched")[:5]
     context = {"title": article, "post": article, "ext_post": ext_post}
 
     return render(request, "cooking/article_detail.html", context)
@@ -61,6 +70,7 @@ def user_login(request):
         form = LoginForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            messages.success(request, "Вы успешно вошли в аккаунт")
             login(request, user)
 
             return redirect("index")
