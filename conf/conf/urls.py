@@ -22,7 +22,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from cooking.views import register, user_login, user_logout
-from cooking.views import Index, CategoryList, PostDetail, AddPost, PostUpdate, PostDelete
+from cooking.views import Index, CategoryList, PostDetail, AddPost, PostUpdate, PostDelete, SearchResults
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -36,6 +36,7 @@ urlpatterns = [
     path("add_article/", AddPost.as_view(), name="add"),
     path('post/<int:pk>/update/', PostUpdate.as_view(), name='post_update'),
     path('post/<int:pk>/delete', PostDelete.as_view(), name='post_delete'),
+    path('search/', SearchResults.as_view(), name='search'),
 
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),

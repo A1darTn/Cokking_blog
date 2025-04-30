@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.db.models import F
+from django.db.models import F, Q
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.views.generic import (
@@ -115,6 +115,18 @@ class PostDelete(DeleteView):
     extra_context = {"title": "Изменение статьи"}
 
 
+class SearchResults(Index):
+    """Поиск слова в заголовках и в содержаниях статьей"""
+    def get_queryset(self):
+        """Функция для фильтрации выборок с бд"""
+        word = self.request.GET.get('q')
+        posts = Post.objects.filter(
+            Q(title__icontains=word) | Q(content__icontains=word)
+        )
+        return posts
+
+
+# class 
 # def add_post(request):
 #     """Добавление статьи от пользователя"""
 #     if request.method == "POST":
