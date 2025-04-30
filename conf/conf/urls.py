@@ -21,15 +21,22 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from cooking.views import add_post, category_list, Index, post_detail, register, user_login, user_logout
+from cooking.views import register, user_login, user_logout
+from cooking.views import Index, CategoryList, PostDetail, AddPost, PostUpdate, PostDelete
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path("", index, name="index"),
     path('', Index.as_view(), name='index'),
-    path("category/<int:pk>/", category_list, name="category_list"),
-    path("post/<int:pk>/", post_detail, name="post_detail"),
-    path("add_article/", add_post, name="add"),
+    # path("category/<int:pk>/", category_list, name="category_list"),
+    path("category/<int:pk>/", CategoryList.as_view(), name="category_list"),
+    # path("post/<int:pk>/", post_detail, name="post_detail"),
+    path("post/<int:pk>/", PostDetail.as_view(), name="post_detail"),
+    # path("add_article/", add_post, name="add"),
+    path("add_article/", AddPost.as_view(), name="add"),
+    path('post/<int:pk>/update/', PostUpdate.as_view(), name='post_update'),
+    path('post/<int:pk>/delete', PostDelete.as_view(), name='post_delete'),
+
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),
     path('register/', register, name='register')
