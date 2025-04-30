@@ -21,7 +21,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from cooking.views import register, user_login, user_logout
+from cooking.views import register, user_login, user_logout, add_comment, profile
 from cooking.views import Index, CategoryList, PostDetail, AddPost, PostUpdate, PostDelete, SearchResults
 
 urlpatterns = [
@@ -40,7 +40,9 @@ urlpatterns = [
 
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),
-    path('register/', register, name='register')
+    path('register/', register, name='register'),
+    path('add_comment/<int:post_id>/', add_comment, name='add_comment'),
+    path('profile/<int:user_id>/', profile, name='profile'),
 ]
 
 

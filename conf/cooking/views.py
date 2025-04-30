@@ -10,9 +10,10 @@ from django.views.generic import (
     UpdateView,
 )
 from django.urls import reverse_lazy
+from django.contrib.auth.models import User
 
-from .models import Post, Category
-from .forms import PostAddForm, LoginForm, RegistrationForm
+from .models import Post, Category, Comment
+from .forms import PostAddForm, LoginForm, RegistrationForm, CommentForm
 
 # Create your views here.
 
@@ -87,6 +88,9 @@ class PostDetail(DeleteView):
             Post.objects.all().exclude(pk=self.kwargs["pk"]).order_by("-watched")[:5]
         )
         context["ext_post"] = ext_post
+        context["comments"] = Comment.objects.filter(post=post)
+        if self.request.user.is_authenticated:
+            context["comment_form"] = CommentForm
         return context
 
 
@@ -96,6 +100,10 @@ class AddPost(CreateView):
     form_class = PostAddForm
     template_name = "cooking/article_add_form.html"
     extra_context = {"title": "Добавить статью"}
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
 
 
 class PostUpdate(UpdateView):
@@ -111,22 +119,36 @@ class PostDelete(DeleteView):
 
     model = Post
     success_url = reverse_lazy("index")
-    context_object_name = 'post'
+    context_object_name = "post"
     extra_context = {"title": "Изменение статьи"}
 
 
 class SearchResults(Index):
     """Поиск слова в заголовках и в содержаниях статьей"""
+
     def get_queryset(self):
         """Функция для фильтрации выборок с бд"""
-        word = self.request.GET.get('q')
+        word = self.request.GET.get("q")
         posts = Post.objects.filter(
             Q(title__icontains=word) | Q(content__icontains=word)
         )
         return posts
 
 
-# class 
+def add_comment(request, post_id):
+    """Добавление комментария к статьям"""
+    form = CommentForm(data=request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.user = request.user
+        comment.post = Post.objects.get(pk=post_id)
+        comment.save()
+        messages.success(request, "Ваш комментарий успешно добавлен")
+
+    return redirect("post_detail", post_id)
+
+
+# class
 # def add_post(request):
 #     """Добавление статьи от пользователя"""
 #     if request.method == "POST":
@@ -182,3 +204,15 @@ def register(request):
     context = {"title": "Регистрация пользователя", "form": form}
 
     return render(request, "cooking/register.html", context)
+
+
+def profile(request, user_id):
+    """Страничка пользователя"""
+    user = User.objects.get(pk=user_id)
+    posts = Post.objects.filter(author=user)
+    context = {
+        'user': user,
+        'posts': posts
+    }
+
+    return render(request, 'cooking/profile.html', context)
