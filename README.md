@@ -42,8 +42,8 @@
 
 1. **Клонируйте репозиторий:**
     ```bash
-    git clone https://github.com/ваш_пользователь/рецепты.git
-    cd рецепты
+    git clone https://github.com/A1darTn/Cokking_blog
+    cd Cokking_blog
     ```
 
 2. **Создайте виртуальное окружение и активируйте его:**
