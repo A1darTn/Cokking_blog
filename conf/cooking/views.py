@@ -5,15 +5,19 @@ from django.contrib import messages
 from django.views.generic import (
     ListView,
     DeleteView,
-    DetailView,
     CreateView,
     UpdateView,
 )
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordChangeView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
+from django.views.generic import TemplateView
 
 from .models import Post, Category, Comment
 from .forms import PostAddForm, LoginForm, RegistrationForm, CommentForm
+from .serializers import PostSerializer, CategorySerializer
 
 # Create your views here.
 
@@ -148,7 +152,6 @@ def add_comment(request, post_id):
     return redirect("post_detail", post_id)
 
 
-# class
 # def add_post(request):
 #     """Добавление статьи от пользователя"""
 #     if request.method == "POST":
@@ -210,9 +213,49 @@ def profile(request, user_id):
     """Страничка пользователя"""
     user = User.objects.get(pk=user_id)
     posts = Post.objects.filter(author=user)
-    context = {
-        'user': user,
-        'posts': posts
-    }
+    context = {"user": user, "posts": posts}
 
-    return render(request, 'cooking/profile.html', context)
+    return render(request, "cooking/profile.html", context)
+
+
+class UserChangePassword(PasswordChangeView):
+    """Простой способ смены пароля"""
+
+    template_name = "cooking/password_change_form.html"
+    success_url = reverse_lazy("index")
+
+
+class CookingApi(ListAPIView):
+    """Выдача всех статей по API"""
+
+    queryset = Post.objects.filter(is_published=True)
+    serializer_class = PostSerializer
+
+
+class CookingAPIDetail(RetrieveAPIView):
+    """Выдача статьи по API"""
+
+    queryset = Post.objects.filter(is_published=True)
+    serializer_class = PostSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class CookingCategoryAPI(ListAPIView):
+    """Выдача всех категорий по API"""
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class CookingCategoryAPIDetail(RetrieveAPIView):
+    """Выдача категории по API"""
+
+    queryset = Post.objects.filter(is_published=True)
+    serializer_class = CategorySerializer
+
+
+class SwaggerApiDoc(TemplateView):
+    """Документация API"""
+
+    template_name = "swagger/swagger_ui.html"
+    extra_context = {"schema_url": "openapi-schema"}
